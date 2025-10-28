@@ -55,8 +55,9 @@ def get_movies(user_id):
     When you click on a user name, the app retrieves that user’s
     list of favorite movies and displays it.
     """
+    user = data_manager.get_user(user_id)
     movies = data_manager.get_movies(user_id)
-    return str(movies)
+    return render_template('movies.html', movies=movies, user=user)
 
 
 @app.route('/users/<int:user_id>/movies', methods=['POST'])
@@ -65,10 +66,12 @@ def add_movie(user_id):
     Add a new movie to a user’s list of favorite movies.
     """
     title = request.form['title']
+    year = request.form['year']
 
     res = requests.get(f"https://www.omdbapi.com/", params={
         'apikey': api_key,
-        't': title
+        't': title,
+        'y': year
     })
     data = res.json()
 
@@ -86,7 +89,7 @@ def add_movie(user_id):
     db.session.add(movie)
     db.session.commit()
 
-    return f"Movie {title} added successfully!"
+    return redirect(f"/users/{user_id}/movies")
 
 
 
@@ -96,7 +99,9 @@ def update_movie(user_id, movie_id):
     Modify the title of a specific movie in a user’s list,
     without depending on OMDb for corrections.
     """
-    pass
+    data_manager.update_movie(movie_id, request.form['title'])
+    return redirect(f"/users/{user_id}/movies")
+
 
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/delete', methods=['POST'])
@@ -104,7 +109,8 @@ def delete_movie(user_id, movie_id):
     """
     Remove a specific movie from a user’s favorite movie list.
     """
-    pass
+    data_manager.delete_movie(movie_id)
+    return redirect(f"/users/{user_id}/movies")
 
 
 if __name__ == '__main__':

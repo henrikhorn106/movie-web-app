@@ -32,6 +32,19 @@ class DataManager:
         """
         return User.query.all()
 
+    def get_user(self, user_id):
+        """
+        Retrieve a user based on the provided user ID.
+
+        :param user_id: The ID of the user to retrieve.
+        :type user_id: int
+        :return: The user object corresponding to the provided user ID,
+            or None if no user is found.
+        :rtype: User or None
+        """
+        user = User.query.filter_by(id=user_id).first()
+        return user
+
     def get_movies(self, user_id):
         """
         Fetches a list of movies associated with a specific user.
@@ -80,3 +93,4 @@ class DataManager:
         """
         movie = Movie.query.filter_by(id=movie_id).first()
         db.session.delete(movie)
+        db.session.commit()

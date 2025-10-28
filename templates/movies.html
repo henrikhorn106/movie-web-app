@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<a class="back-link" href="/">&larr; Back to Users</a>
+<h1>Movies for {{ user.name }}</h1>
+<div class="card-list">
+    {% for movie in movies %}
+
+    <div class="card">
+
+        <img alt="Poster for {{ movie.title }}"
+             class="movie-poster" src="{{ movie.poster }}">
+
+        <form action="{{ url_for('update_movie', user_id=movie.user_id, movie_id=movie.id) }}" class="inline-form" method="post">
+            <input name="title" required type="text" value="{{ movie.title }}">
+            <button class="btn btn-small" type="submit">Update</button>
+        </form>
+
+        <div><strong>Year:</strong> {{ movie.year }}</div>
+
+
+        <div><strong>Director:</strong> {{ movie.director }}</div>
+
+        <form action="{{ url_for('delete_movie', user_id=movie.user_id, movie_id=movie.id) }}" class="inline-form" method="post">
+            <button class="btn btn-danger btn-small" onclick="return confirm('Delete this movie?');" type="submit">
+                Delete
+            </button>
+        </form>
+    </div>
+
+
+    {% endfor %}
+
+</div>
+<div class="form-section">
+    <h2>Add New Movie</h2>
+    <form action="{{ url_for('add_movie', user_id=user.id) }}" method="post">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input id="title" name="title" placeholder="Titanic" type="text">
+        </div>
+        <div class="form-group">
+            <label for="year">Year</label>
+            <input id="year" name="year" placeholder="1997" type="text">
+        </div>
+
+        <button class="btn" type="submit">Add Movie</button>
+    </form>
+</div>
+
+{% endblock %}
