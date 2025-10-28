@@ -1,10 +1,20 @@
+"""
+A movie management application using Flask.
+
+This script sets up a web application for managing users and their favorite
+movies. The application leverages Flask for routing, SQLAlchemy for database
+handling, and integrates with the OMDb API to fetch movie details. It includes
+routes to display, create, update, and delete users as well as their associated
+movies.
+"""
+import os
+
 import requests
+from dotenv import load_dotenv
 from flask import Flask, request, render_template, redirect
+
 from data_manager import DataManager
 from models import db, Movie
-import os
-from dotenv import load_dotenv
-
 
 # Load .env file
 load_dotenv()
@@ -12,26 +22,38 @@ load_dotenv()
 # Access API key
 api_key = os.environ.get('OMBD_API_KEY')
 
-
 app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data/movies.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db.init_app(app)  # Link the database and the app. This is the reason you need to import db from models
+db.init_app(app)  # Link the database and the app
 
-data_manager = DataManager() # Create an object of your DataManager class
+data_manager = DataManager()  # Create an object of your DataManager class
 
 
 @app.route('/', methods=['GET'])
 def index():
+    """
+    Handles the root endpoint of the application.
+
+    This function retrieves the list of users through the data_manager and
+    renders the 'index.html' template with the provided user data.
+
+    :return: Rendered HTML page populated with the list of users
+    """
     users = data_manager.get_users()
     return render_template('index.html', users=users)
 
 
 @app.route('/users')
 def list_users():
+    """
+    Retrieves the list of users and returns them as a string.
+
+    :return: A string representation of the list of users
+    """
     users = data_manager.get_users()
     return str(users)  # Temporarily returning users as a string
 
@@ -42,10 +64,12 @@ def create_user():
     When the user submits the add user form, a POST request is made.
     The server receives the new user info, adds it to the database,
     then redirects back to /.
+
+    :return: Redirect to the root endpoint
     """
     name = request.form['name']
     email = request.form['email']
-    user = data_manager.create_user(name, email)
+    data_manager.create_user(name, email)
     return redirect("/")
 
 
@@ -54,6 +78,8 @@ def get_movies(user_id):
     """
     When you click on a user name, the app retrieves that user’s
     list of favorite movies and displays it.
+
+    :return: Rendered HTML page populated with the list of movies
     """
     user = data_manager.get_user(user_id)
     movies = data_manager.get_movies(user_id)
@@ -64,16 +90,23 @@ def get_movies(user_id):
 def add_movie(user_id):
     """
     Add a new movie to a user’s list of favorite movies.
+
+    :return: Redirect to the movies endpoint for the specified user
     """
     title = request.form['title']
     year = request.form['year']
 
-    res = requests.get(f"https://www.omdbapi.com/", params={
-        'apikey': api_key,
-        't': title,
-        'y': year
-    })
-    data = res.json()
+    try:
+        res = requests.get("https://www.omdbapi.com/", params={
+            'apikey': api_key,
+            't': title,
+            'y': year
+        }, timeout=5)
+        data = res.json()
+    except requests.exceptions.Timeout:
+        return "Timeout error"
+    except requests.exceptions.RequestException as e:
+        return f"Error: {e}"
 
     if 'Error' in data:
         return f"Error: {data['Error']}"
@@ -92,22 +125,24 @@ def add_movie(user_id):
     return redirect(f"/users/{user_id}/movies")
 
 
-
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/update', methods=['POST'])
 def update_movie(user_id, movie_id):
     """
     Modify the title of a specific movie in a user’s list,
     without depending on OMDb for corrections.
+
+    :return: Redirect to the movies endpoint for the specified user
     """
     data_manager.update_movie(movie_id, request.form['title'])
     return redirect(f"/users/{user_id}/movies")
-
 
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/delete', methods=['POST'])
 def delete_movie(user_id, movie_id):
     """
     Remove a specific movie from a user’s favorite movie list.
+
+    :return: Redirect to the movies endpoint for the specified user
     """
     data_manager.delete_movie(movie_id)
     return redirect(f"/users/{user_id}/movies")

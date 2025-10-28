@@ -12,17 +12,21 @@
         <img alt="Poster for {{ movie.title }}"
              class="movie-poster" src="{{ movie.poster }}">
 
-        <form action="{{ url_for('update_movie', user_id=movie.user_id, movie_id=movie.id) }}" class="inline-form" method="post">
-            <input name="title" required type="text" value="{{ movie.title }}">
-            <button class="btn btn-small" type="submit">Update</button>
+        <form class="form-update" action="{{ url_for('update_movie', user_id=movie.user_id, movie_id=movie.id) }}" class="inline-form"
+              method="post">
+            <div class="form-group">
+                <input name="title" required type="text" value="{{ movie.title }}">
+                <button class="btn btn-small" type="submit">Update</button>
+            </div>
+
         </form>
 
         <div><strong>Year:</strong> {{ movie.year }}</div>
-
-
         <div><strong>Director:</strong> {{ movie.director }}</div>
+        <div><strong>Genre:</strong> {{ movie.genre }}</div>
 
-        <form action="{{ url_for('delete_movie', user_id=movie.user_id, movie_id=movie.id) }}" class="inline-form" method="post">
+        <form action="{{ url_for('delete_movie', user_id=movie.user_id, movie_id=movie.id) }}" class="inline-form"
+              method="post">
             <button class="btn btn-danger btn-small" onclick="return confirm('Delete this movie?');" type="submit">
                 Delete
             </button>
@@ -35,7 +39,7 @@
 </div>
 <div class="form-section">
     <h2>Add New Movie</h2>
-    <form action="{{ url_for('add_movie', user_id=user.id) }}" method="post">
+    <form class="form-add" action="{{ url_for('add_movie', user_id=user.id) }}" method="post">
         <div class="form-group">
             <label for="title">Title</label>
             <input id="title" name="title" placeholder="Titanic" type="text">

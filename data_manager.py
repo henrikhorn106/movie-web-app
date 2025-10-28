@@ -1,3 +1,9 @@
+"""
+Handles data management operations related to users and movies.
+
+This module provides functionality to create, retrieve, update, and delete
+user and movie records in the database.
+"""
 from models import db, User, Movie
 
 class DataManager:
