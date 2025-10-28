@@ -74,7 +74,14 @@ def add_movie(user_id):
     if 'Error' in data:
         return f"Error: {data['Error']}"
 
-    movie = Movie(title=data['Title'], year=data['Year'], director=data['Director'], genre=data['Genre'], user_id=user_id)
+    movie = Movie(
+        title=data['Title'],
+        year=data['Year'],
+        director=data['Director'],
+        genre=data['Genre'],
+        poster=data['Poster'],
+        user_id=user_id
+    )
     db.session.add(movie)
     db.session.commit()
 

@@ -24,6 +24,7 @@ class Movie(db.Model):
     year = db.Column(db.Integer, nullable=False)
     director = db.Column(db.String(120), nullable=False)
     genre = db.Column(db.String(120), nullable=False)
+    poster = db.Column(db.String(120), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
