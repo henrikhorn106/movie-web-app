@@ -7,7 +7,7 @@ class DataManager:
     :ivar db: Database session used to interact with the database.
     :type db: SQLAlchemy
     """
-    def create_user(self, username, email):
+    def create_user(self, name, email):
         """
         Creates and saves a new user to the database.
 
@@ -18,7 +18,7 @@ class DataManager:
         :return: The newly created user instance.
         :rtype: User
         """
-        user = User(username=username, email=email)
+        user = User(name=name, email=email)
         db.session.add(user)
         db.session.commit()
         return user

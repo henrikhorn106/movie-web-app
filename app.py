@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, request
+from flask import Flask, request, render_template, redirect
 from data_manager import DataManager
 from models import db, Movie
 import os
@@ -24,9 +24,10 @@ db.init_app(app)  # Link the database and the app. This is the reason you need t
 data_manager = DataManager() # Create an object of your DataManager class
 
 
-@app.route('/')
-def home():
-    return "Welcome to MoviWeb App!"
+@app.route('/', methods=['GET'])
+def index():
+    users = data_manager.get_users()
+    return render_template('index.html', users=users)
 
 
 @app.route('/users')
@@ -36,20 +37,20 @@ def list_users():
 
 
 @app.route('/users', methods=['POST'])
-def add_user():
+def create_user():
     """
     When the user submits the add user form, a POST request is made.
     The server receives the new user info, adds it to the database,
     then redirects back to /.
     """
-    username = request.form['username']
+    name = request.form['name']
     email = request.form['email']
-    user = data_manager.create_user(username, email)
-    return f"User {user.username} created successfully!"
+    user = data_manager.create_user(name, email)
+    return redirect("/")
 
 
 @app.route('/users/<int:user_id>/movies', methods=['GET'])
-def list_movies(user_id):
+def get_movies(user_id):
     """
     When you click on a user name, the app retrieves that user’s
     list of favorite movies and displays it.
