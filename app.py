@@ -43,7 +43,11 @@ def index():
 
     :return: Rendered HTML page populated with the list of users
     """
-    users = data_manager.get_users()
+    try:
+        users = data_manager.get_users()
+    except IOError as e:
+        print("An IOError occurred: ", str(e))
+
     return render_template('index.html', users=users)
 
 
@@ -54,7 +58,11 @@ def list_users():
 
     :return: A string representation of the list of users
     """
-    users = data_manager.get_users()
+    try:
+        users = data_manager.get_users()
+    except IOError as e:
+        print("An IOError occurred: ", str(e))
+
     return str(users)  # Temporarily returning users as a string
 
 
@@ -69,7 +77,10 @@ def create_user():
     """
     name = request.form['name']
     email = request.form['email']
-    data_manager.create_user(name, email)
+    try:
+        data_manager.create_user(name, email)
+    except IOError as e:
+        print("An IOError occurred: ", str(e))
     return redirect("/")
 
 
@@ -81,8 +92,12 @@ def get_movies(user_id):
 
     :return: Rendered HTML page populated with the list of movies
     """
-    user = data_manager.get_user(user_id)
-    movies = data_manager.get_movies(user_id)
+    try:
+        user = data_manager.get_user(user_id)
+        movies = data_manager.get_movies(user_id)
+    except IOError as e:
+        print("An IOError occurred: ", str(e))
+
     return render_template('movies.html', movies=movies, user=user)
 
 
@@ -119,8 +134,11 @@ def add_movie(user_id):
         poster=data['Poster'],
         user_id=user_id
     )
-    db.session.add(movie)
-    db.session.commit()
+
+    try:
+        data_manager.add_movie(movie)
+    except IOError as e:
+        print("An IOError occurred: ", str(e))
 
     return redirect(f"/users/{user_id}/movies")
 
@@ -133,7 +151,12 @@ def update_movie(user_id, movie_id):
 
     :return: Redirect to the movies endpoint for the specified user
     """
-    data_manager.update_movie(movie_id, request.form['title'])
+
+    try:
+        data_manager.update_movie(movie_id, request.form['title'])
+    except IOError as e:
+        print("An IOError occurred: ", str(e))
+
     return redirect(f"/users/{user_id}/movies")
 
 
@@ -144,8 +167,17 @@ def delete_movie(user_id, movie_id):
 
     :return: Redirect to the movies endpoint for the specified user
     """
-    data_manager.delete_movie(movie_id)
+    try:
+        data_manager.delete_movie(movie_id)
+    except IOError as e:
+        print("An IOError occurred: ", str(e))
+
     return redirect(f"/users/{user_id}/movies")
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 
 if __name__ == '__main__':
